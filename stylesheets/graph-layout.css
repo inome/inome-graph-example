@@ -1,0 +1,138 @@
+html,body
+{
+   height: 100%;
+}
+
+#left, #right
+{
+   position:relative;
+   height: 100%;
+   float:left;
+}
+
+#left
+{
+   width: 55%;
+}
+
+#right
+{
+   width: 45%;
+}
+
+#output
+{
+   background: #C5E3BF;
+   background-image: -webkit-linear-gradient(top, #C5E3BF,#FFFFFF);
+   background-image: -moz-linear-gradient(top, #C5E3BF,#FFFFFF);
+   background-image: -ms-linear-gradient(top, #C5E3BF,#FFFFFF);
+   background-image: -o-linear-gradient(top, #C5E3BF,#FFFFFF);
+   height: 700px;
+}
+
+#search-form label
+{
+   width: 100px;
+   margin-bottom:0;
+}
+
+#search-form input
+{
+   width: 165px;
+}
+
+.box
+{
+   float:left;
+   margin: 0 15px 0 0;
+}
+
+#search-form .btn-primary
+{
+   position:relative;
+   top: 78px;
+   width: 50px;
+}
+
+.clear
+{
+   clear: both;
+}
+
+#graph
+{
+   border: 1px solid #666;
+   position: relative;
+}
+
+#control-strip
+{
+   position:absolute;
+   right: 5px;
+   top: 5px;
+   display:none;
+}
+
+#control-strip .style
+{
+   margin-left: 15px;
+}
+
+#json
+{
+   overflow:auto;
+   font-size:10px;
+   height:100%;
+}
+
+div.box.state
+{
+   padding-left: 195px;
+}
+
+form#search-form select
+{
+   width: 180px;
+}
+
+#api_key
+{
+   position:relative;
+}
+
+a#manual-key
+{
+   position:absolute;
+   left: 37px;
+   top: 50px;
+}
+
+select#api_key_select,
+a#manual-key
+{
+   display:none;
+}
+
+.no-browser-support
+{
+   display:none;
+   background: #c00;
+   position:absolute;
+   width: 100%;
+   padding: 5px 0;
+}
+
+.no-browser-support .message
+{
+   color:#eee;
+   margin-bottom:0;
+   padding-left:10px;
+   font-size: 12px;
+}
+
+#right .label
+{
+   position:absolute;
+   right: 0;
+   color: #eee;
+}

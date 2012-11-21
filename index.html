@@ -1,0 +1,237 @@
+<html>
+   <head>
+      <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+      <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min.js"></script>
+      <script src="http://cdnjs.cloudflare.com/ajax/libs/d3/2.10.0/d3.v2.min.js"></script>
+      <script type="text/javascript" src="javascripts/inome.translator.js"></script>
+      <script type="text/javascript" src="javascripts/graphlib.js"></script>
+      <script type="text/javascript" src="javascripts/inomegraph.js"></script>
+      <script type="text/javascript" src="javascripts/prettify.js"></script>
+      <script type="text/javascript" src="javascripts/base64.min.js"></script>
+      <link rel="stylesheet" type="text/css" href="stylesheets/twitter-bootstrap.min.css">
+      <link rel="stylesheet" type="text/css" href="stylesheets/graph-layout.css">
+      <link rel="stylesheet" type="text/css" href="stylesheets/graph.css">
+      <link rel="stylesheet" type="text/css" href="stylesheets/prettify.css">
+   </head>
+   <body>
+      <form id="search-form" action="javascript://">
+         <div id="api_key" class="box">
+            <label for="api_key">API Key</label>
+            <input type="text" id="api_key_input" name="api_key" />
+            <select name="api_key" id="api_key_select">
+            </select>
+            <a href="javascript://" id="manual-key">Enter Manual Key</a>
+         </div>
+         <div class="box">
+            <label for="firstname">firstname</label>
+            <input type="text" name="firstname" />
+         </div>
+         <div class="box">
+            <label for="middlename">middlename</label> 
+            <input type="text" name="middlename" />
+         </div>
+         <div class="box">
+            <label for="lastname">lastname</label>
+            <input type="text" name="lastname" />
+         </div>
+         <div class="box">
+            <label for="city">city</label>
+            <input type="text" name="city" />
+         </div>
+         <div class="box state">
+            <label for="state">state</label>
+            <input type="text" name="state" />
+         </div>
+         <div class="box">
+            <label for="zip">zip</label>
+            <input type="text" name="zip" />
+         </div>
+         <div class="box">
+            <label for="email">email</label>
+            <input type="text" name="email" />
+         </div>
+         <div class="box">
+            <label for="phone">phone</label>
+            <input type="text" name="phone" />
+         </div>
+         <input type="submit" value="Go" class="btn btn-primary"/>
+      </form>
+      <div class="clear"></div>
+
+      <div id="left">
+         <div id="graph">
+            <a href="https://github.com/you"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_green_007200.png" alt="Fork me on GitHub"></a>
+
+            <div id="control-strip">
+               <fieldset id="filters">
+                  <button class="btn btn-primary filter" value="person">
+                     <i class="icon-user icon-white"></i>
+                  </button>
+                  <button class="btn btn-primary filter" value="address">
+                     <i class="icon-home icon-white"></i>
+                  </button>
+                  <button class="btn btn-primary filter" value="education">
+                     <i class="icon-book icon-white"></i>
+                  </button>
+                  <button class="btn btn-primary filter" value="professional">
+                     <i class="icon-briefcase icon-white"></i>
+                  </button>
+                  <button class="btn btn-primary style" value="style">
+                     <i class="icon-resize-horizontal icon-white"></i>
+                  </button>
+               </fieldset>
+            </div>
+         </div>
+      </div>
+      <div id="right">
+         <div id="output">
+            <p>JSON output:</p>
+            <pre id="json" class="prettyprint">
+            </pre>
+         </div>
+      </div>
+      <div class="clear"></div>
+      <script type="text/javascript">
+         /**
+          * url proxy for our api
+          */
+         var API_URL = 'https://graph.inome.com/proxy/search';
+
+         /**
+          * allows us to fill the api key if the user is logged in
+          */
+         $.ajax({
+                  url:'http://developer.inome.com/io-docs',
+                  success: function(data) {
+                     var keys = $.parseJSON($(data).find('#api390').attr('data-available-keys'));
+                     if (keys)
+                     {
+                        $('#api_key_input').remove();
+                        $.each(keys,function(k,v){
+                           var opt = $('<option></option>');
+                           opt.attr('value',v.key);
+                           opt.html(v.key);
+                           $('#api_key_select').append(opt);
+                           $('#api_key_select, #manual-key').show();
+                        });
+                     }
+                     else
+                     {
+                        $('#api_key_select').remove();
+                        $('#manual-key').remove();
+                     }
+                  }
+               })
+
+         /**
+          * changes select box to a input box to enter a manual api key
+          */
+         $('#manual-key').click(function(){
+            $('#api_key_input').remove();
+            var inp = $('<input type="text" value="" name="api_key" id="api_key_input" />');
+            $('#api_key_select, #manual-key').remove();
+            $('#api_key').append(inp);
+            $('#api_key_input').focus();
+         });
+
+         // Initialize our graph
+         var graph = inomeGraph('#graph');
+
+         /**
+          * Event handler for search button
+          */
+         $('#search-form').submit(function(){
+            var query = $('#search-form').serialize();
+            getInomeProfiles(query, function(json,data){
+               if (json.profiles.length)
+               {
+                  switch(json.profiles.length)
+                  {
+                     case 1:
+                        graph.go(json.profiles[0]);
+                        $('#control-strip').fadeIn();
+                     break;
+                     case 0:
+                     break;
+                     default:
+                        buildTickler(data);
+                     break;
+                  }
+               }
+            });
+         });
+
+         /**
+          * Toggle for filter buttons
+          */
+         $('.filter').toggle(
+            function(){
+               $(this).removeClass('btn-primary').addClass('btn-inverse');
+               graph.hideType($(this).val());
+            },
+            function(){
+              $(this).removeClass('btn-inverse').addClass('btn-primary');
+              graph.showType($(this).val());
+            }
+         );
+
+         /**
+          * toggles link styles when the style button is clicked
+          */
+         var styles = ['bezier','straight','arc'];
+         var counter = 0;
+         $('.style').click(function(){
+            var currentStyle  = styles[++counter % styles.length];
+            graph.setLinkStyle(currentStyle);
+         });
+
+        /**
+         * populates the graph with new nodes based on a clicked node
+         */
+         function getInomeProfiles(query,callback){
+            d3.text(API_URL + '?' + query,function(json){
+               var data, output;
+               try{
+                  json = JSON.parse(json);
+                  output = JSON.stringify(json,null,'  ');
+                  prettyPrint();
+                  data = inome.translator.searchToGraphForm(json);
+               }
+               catch(e){
+                  output = json;
+                  data = {profiles: []};
+                  er = e;
+               }
+               finally
+               {
+                  callback(data,json);
+                  $('#json').html(output);
+               }
+            });
+
+         } // getInomeProfiles()
+
+         /**
+          * builds the tickler from an iws call
+          */
+         function buildTickler(json)
+         {
+            var data = {links: [], nodes: []};
+            var trans = inome.translator.searchToGraphForm(json);
+            $.each(trans.profiles, function(k,v){
+                  var n = v.nodes[0];
+                  var address = (n.extra.addresses && n.extra.addresses.address && n.extra.addresses.address[0].city) + ' '  + (n.extra.addresses && n.extra.addresses.address && n.extra.addresses.address[0].state);
+                  n.name += " \n"  + address
+                  n.type = 'multiPreview';
+                  data.nodes.push(n);
+            });
+
+            graph.option('charge',-300);
+            graph.go(data);
+
+         } // buildTickler()
+
+      </script>
+   </body>
+</html>
+

@@ -1,0 +1,38 @@
+.node.person circle, .node.multiPreview circle{ fill: #CC99FF; }
+.node.education circle{ fill: #c9f600; }
+.node.professional circle{ fill: #ff5f00; }
+.node.address circle{ fill: #00A67C; }
+.node.social circle{ fill: #3B5998; }
+.node.neighbor circle { fill: #DD4337; }
+
+.link.person path { stroke: #CC99FF; }
+.link.education path { stroke: #C9F600; }
+.link.professional path { stroke: #ff5f00; }
+.link.address path { stroke: #00A67C; }
+.link.social path { stroke: #3B5998; }
+.link.neighbor path { stroke: #DD4337; }
+
+.link line,
+.link path
+{
+   fill: none;
+   stroke: #aaa;
+   stroke-opacity: 0.6;
+}
+.link.selected line,
+.link.selected path
+{
+   stroke: #00f;
+}
+
+.link.to-root line,
+.link.to-root path
+{
+   stroke: #f00;
+}
+
+text { font-size: 8px;}
+
+g.node { cursor: pointer; }
+
+.node.selected circle { stroke: #f00; }
