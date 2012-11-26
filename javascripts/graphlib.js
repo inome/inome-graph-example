@@ -3,8 +3,6 @@
  * @since November 30th, 2012
  * @version 1.0
  *
- * tested against jquery 1.8.1
- *
  * @dependency d3.js <d3js.org>
  *
  * A simple graph library for adding and removing nodes and links from a graph
