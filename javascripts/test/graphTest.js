@@ -1,4 +1,4 @@
-var graph = graphLib('#graph', {width: 100, height:105});
+var graph = graphLib('#graph', {width: 100, height:105, style: {person: {r: 10}} });
 
 QUnit.test('config test', function(assert){
    assert.equal(graph.option('width'), 100, 'ensure width got set');
@@ -6,6 +6,8 @@ QUnit.test('config test', function(assert){
 
    graph.option('width', 200);
    assert.equal(graph.option('width'), 200, 'ensure setting options works');
+
+   assert.notEqual(graph.option('style').defaultStyle,null, 'ensure default style doesn\'t get overridden');
 });
 
 QUnit.test('test reset method', function(assert){

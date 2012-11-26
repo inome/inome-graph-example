@@ -6,7 +6,6 @@
  * tested against jquery 1.8.1
  *
  * @dependency d3.js <d3js.org>
- * @dependency jquery 1.8.1 <jquery.com>
  *
  * A simple graph library for adding and removing nodes and links from a graph
  * @param selector - element that will contain the graph
@@ -111,8 +110,8 @@ function graphLib(selector, conf)
         */
        hiddenPool = {};
 
-   $.extend(conf.style || {}, config.style);
-   $.extend(config,conf);
+   extend(conf.style || {}, config.style);
+   extend(config,conf);
 
    /**
     * initialization immediate function
@@ -204,12 +203,12 @@ function graphLib(selector, conf)
    function getHiddenLinks()
    {
       var links = [];
-      var pushLink = function(k,v){ links.push(v); };
+      var pushLink = function(v,k){ links.push(v); };
       for (var hash in hiddenPool)
       {
          if (hiddenPool.hasOwnProperty(hash))
          {
-            $.each(hiddenPool[hash].links,pushLink);
+            hiddenPool[hash].links.forEach(pushLink);
          }
       }
 
@@ -223,12 +222,12 @@ function graphLib(selector, conf)
    function getHiddenNodes()
    {
       var nodes = [];
-      var pushNode = function(k,v) { nodes.push(v); };
+      var pushNode = function(v,k) { nodes.push(v); };
       for (var hash in hiddenPool)
       {
          if (hiddenPool.hasOwnProperty(hash))
          {
-            $.each(hiddenPool[hash].nodes,pushNode);
+            hiddenPool[hash].nodes.forEach(pushNode);
          }
       }
 
@@ -256,8 +255,8 @@ function graphLib(selector, conf)
       nodes = setupNodes(nodes);
       var nodesMap = mapNodes(data.nodes);
       nodesMap.addNodes(g.getHiddenNodes());
-      $.each(nodes,function(k,n)
-            {
+      nodes.forEach(function(n,k)
+      {
          if (!nodesMap.has(n.id))
          {
             var show = true;
@@ -290,8 +289,7 @@ function graphLib(selector, conf)
 
       force.nodes(data.nodes).start();
       updateNodes();
-
-   } // addNodes
+} // addNodes
 
    /**
     * adds links to the visualization in the minimum form {source: <string id of the source object>, target: <"">}
@@ -302,7 +300,7 @@ function graphLib(selector, conf)
    {
       var linksMap = mapLinks(data.links);
       links = setupLinks(links);
-      $.each(links,function(k,l)
+      links.forEach(function(l,k)
       {
          if (!linksMap.hasLink(l))
          {
@@ -351,14 +349,14 @@ function graphLib(selector, conf)
          deleted = {links:[],nodes:[]},
          newData = {links:[],nodes:[]},
          rem;
-      data.links = $.each(data.links,function(k,l)
+      data.links = data.links.forEach(function(l,k)
       {
          rem = isSubset(l.source,selector) || isSubset(l.target,selector);
          pool = rem ? deleted.links : newData.links;
          pool.push(l);
       });
 
-      data.nodes = $.each(data.nodes, function(k,n)
+      data.nodes = data.nodes.forEach(function(n,k)
       {
          rem = isSubset(n,selector);
          pool = rem ? deleted.nodes : newData.nodes;
@@ -455,7 +453,7 @@ function graphLib(selector, conf)
     */
    function setupNodes(nodes)
    {
-      $.each(nodes,function(k,n)
+      nodes.forEach(function(n,k)
       {
          if (!n.x && !n.y)
          {
@@ -475,15 +473,15 @@ function graphLib(selector, conf)
    function setupLinks(links)
    {
       var nodesMap = mapNodes(data.nodes);
-      $.each(hiddenPool,function(k,v)
+      for (var key in hiddenPool)
       {
-         $.each(v.nodes, function(k,n)
+         hiddenPool[key].nodes.forEach(function(n,k)
          {
             nodesMap.set(n.id,n);
          });
-      });
+      }
 
-      $.each(links,function(k,l)
+      links.forEach(function(l,k)
       {
          // if the link has not been set up yet
          if (typeof l.source !== 'object')
@@ -670,7 +668,7 @@ function graphLib(selector, conf)
 
       nodesMap.__proto__.addNodes = function(ns)
       {
-         $.each(ns, function(k,n)
+         ns.forEach(function(n,k)
          {
             nodesMap.set(n.id,n);
          });
@@ -697,7 +695,7 @@ function graphLib(selector, conf)
 
       linksMap.__proto__.addLinks = function(ls)
       {
-         $.each(ls,function(k,l)
+         ls.forEach(function(l,k)
          {
             linksMap.set(l.source.id + '' + l.target.id,l);
          });
@@ -707,6 +705,25 @@ function graphLib(selector, conf)
       return linksMap;
 
    } // mapLinks
+
+   /**
+    * extends obj with extObj's properties
+    * @param obj - object to extend
+    * @param extObj - object passed in
+    */
+   function extend(obj, extObj)
+   {
+      if (typeof extObj === 'object' && extObj != null)
+      {
+         for (var key in extObj)
+         {
+            obj[key] = extObj[key];
+         }
+      }
+
+      return obj;
+
+   } // extend
 
    /**
     * graph lib client facing interface
