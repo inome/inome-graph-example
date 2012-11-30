@@ -3,6 +3,7 @@
  * @since November 30th, 2012
  * @version 1.0
  *
+ *
  * @dependency d3.js <d3js.org>
  *
  * A simple graph library for adding and removing nodes and links from a graph
@@ -540,7 +541,7 @@ function graphLib(selector, conf)
                  .attr('startOffset', '50%')
                  .attr('baseline-shift', '-2px')
                  .attr('text-anchor','middle')
-                 .text('spouse');
+                 .text(function(d){ return d.label;});
         }
               
      });

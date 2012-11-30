@@ -11,25 +11,25 @@ QUnit.test('config test', function(assert){
 });
 
 QUnit.test('test reset method', function(assert){
-   graph.addNodes([{name: 'nick', id:1},{name:'joe', id:2}]);
+   graph.addNodes([{label: 'nick', id:1},{label:'joe', id:2}]);
    graph.addLinks([{source: 1, target: 2}]);
    graph.reset();
    assert.equal($('.link, .node').length, 0, 'ensure nodes were removed');
 });
 
 QUnit.test('add node test', function(assert){
-   graph.addNodes([{name: 'nick', id:1}]);
+   graph.addNodes([{label: 'nick', id:1}]);
    assert.equal($('.node').length, 1);
    graph.reset();
 });
 
 QUnit.test('adding nodes of the same id', function(assert){
-   graph.addNodes([{name: 'ricardo', id:1}]);
-   graph.addNodes([{name: 'evil-ricardo', id:1}]);
+   graph.addNodes([{label: 'ricardo', id:1}]);
+   graph.addNodes([{label: 'evil-ricardo', id:1}]);
    assert.equal($('.node').length, 1, 'adding nodes in two seperate calls');
    graph.reset();
 
-   graph.addNodes([{name: 'ricardo', id:1},{name: 'evil-ricardo', id:1}]);
+   graph.addNodes([{label: 'ricardo', id:1},{label: 'evil-ricardo', id:1}]);
    assert.equal($('.node').length,1, 'adding nodes in one addNodes call');
    graph.reset();
 });
@@ -37,7 +37,7 @@ QUnit.test('adding nodes of the same id', function(assert){
 QUnit.test('adding many nodes to the graph', function(assert){
    for (var i = 0; i < 1000; i++)
    {
-      graph.addNodes([{name: '', id: i}]);
+      graph.addNodes([{label: '', id: i}]);
    }
    assert.equal($('.node').length, 1000);
    graph.reset();
@@ -45,7 +45,7 @@ QUnit.test('adding many nodes to the graph', function(assert){
    var nodes = [];
    for(var i = 0; i < 1000; i++)
    {
-     nodes.push({name:'', id: i}); 
+     nodes.push({label:'', id: i}); 
    }
    graph.addNodes(nodes);
    assert.equal($('.node').length, 1000);
@@ -56,30 +56,30 @@ QUnit.test('adding many nodes to the graph', function(assert){
  * tests adding links to connect nodes
  */
 QUnit.test('add links test', function(assert){
-   graph.addNodes([{name: 'JJ', id: 0},{name: 'Chris', id:1}]);
+   graph.addNodes([{label: 'JJ', id: 0},{label: 'Chris', id:1}]);
    graph.addLinks([{target: 1, source: 0}]);
    assert.equal($('.link').length, 1);
    graph.reset();
 });
 
 QUnit.test('add links with same source and target', function(){
-   graph.addNodes([{name: 'JG', id:0},{name: 'Chris', id:1}]);
+   graph.addNodes([{label: 'JG', id:0},{label: 'Chris', id:1}]);
    graph.addLinks([{target:1, source: 0}]);
    graph.addLinks([{target:1, source: 0}]);
    assert.equal($('.link').length, 1,'adding links on seperate calls');
 
-   graph.addNodes([{name: 'JG', id:0},{name: 'Chris', id:1}]);
+   graph.addNodes([{label: 'JG', id:0},{label: 'Chris', id:1}]);
    graph.addLinks([{target: 1, source: 0}, {target:1, source:0}]);
    assert.equal($('.link').length, 1, 'adding links on the same add link call');
    graph.reset();
 });
 
 QUnit.test('add many links', function(){
-   graph.addNodes([{name: '', id: 0}]);
+   graph.addNodes([{label: '', id: 0}]);
    var count = 0;
    for (var i = 1; i < 1000; i++)
    {
-      graph.addNodes([{name: '', id: i}]);
+      graph.addNodes([{label: '', id: i}]);
       graph.addLinks([{source: 0, target: i}]);
       count++;
    }
@@ -89,21 +89,21 @@ QUnit.test('add many links', function(){
 });
 
 QUnit.test('test nodes get properly classed according to their type',function(assert){
-   graph.addNodes([{name: 'Smokey Joe', type: 'forest-ranger', id:0}]);
+   graph.addNodes([{label: 'Smokey Joe', type: 'forest-ranger', id:0}]);
    assert.equal($('.node.forest-ranger').length, 1);
    graph.reset();
 });
 
 QUnit.test('remove nodes', function(){
-   graph.addNodes([{name: 'Snoopy', id: 1, type: 'dog'}, {name: 'Charley', id:2, type: 'person'}]);
-   graph.remove({name: 'Snoopy'});
+   graph.addNodes([{label: 'Snoopy', id: 1, type: 'dog'}, {label: 'Charley', id:2, type: 'person'}]);
+   graph.remove({label: 'Snoopy'});
    assert.equal($('.node.dog').length, 0, 'dog node was removed');
    assert.equal($('.node.person').length, 1, 'person node remained'); 
    graph.reset();
 });
 
 QUnit.test('hide nodes', function(assert){
-   graph.addNodes([{name: 'Fruitloop', id: 1, type:'bird'}, {name: 'Trix', id: 2, type:'rabbit'}]);
+   graph.addNodes([{label: 'Fruitloop', id: 1, type:'bird'}, {label: 'Trix', id: 2, type:'rabbit'}]);
    graph.hide({type:'bird'});
    assert.equal($('.node.rabbit').length, 1, 'nodes not in the query still exist');
    assert.equal($('.node.bird').length, 0, 'nodes in the query were hidden');
@@ -114,9 +114,9 @@ QUnit.test('hide nodes', function(assert){
 });
 
 QUnit.test('hidden links getter', function(assert){
-   var nodes = [{name: 'nick', id: 0, type:'programmer'},
-                {name: 'niraj',id: 1, type:'cto'},
-                {name: 'michelle', id: 2, type: 'pgm'}];
+   var nodes = [{label: 'nick', id: 0, type:'programmer'},
+                {label: 'niraj',id: 1, type:'cto'},
+                {label: 'michelle', id: 2, type: 'pgm'}];
    graph.addNodes(nodes);
    graph.hide({type: 'pgm'});
    assert.equal(graph.getHiddenNodes()[0], nodes[2],'ensure the correct node is begot');
@@ -124,23 +124,40 @@ QUnit.test('hidden links getter', function(assert){
 });
 
 QUnit.test('test links getter', function(assert){
-   graph.addNodes([{name: 'greg', id: 1},{name:'ben', id:2}]);
+   graph.addNodes([{label: 'greg', id: 1},{label:'ben', id:2}]);
    graph.addLinks([{source:1, target: 2}]);
    assert.equal(graph.getLinks().length, 1, 'ensure we get back one link');
    graph.reset();
 });
 
 QUnit.test('test node getter',function(assert){
-   graph.addNodes([{name: 'nick', id:1},{name: 'Bro', id:2},{name: 'helly', id:3}]);
+   graph.addNodes([{label: 'nick', id:1},{label: 'Bro', id:2},{label: 'helly', id:3}]);
    assert.equal(graph.getNodes().length, 3, 'test we get the correct amount of nodes')
    graph.reset();
 });
 
 QUnit.test('test setting the root node', function(assert){
-   var node = {name: 'hi', type: 'expression', id:0};
+   var node = {label: 'hi', type: 'expression', id:0};
    graph.addNodes([node]);
    graph.setRoot(node);
 
    assert.equal(graph.getNodes()[0].depth, 0, 'make sure root node was set properly')
    graph.reset();
+});
+
+QUnit.test('test labels on links', function(assert){
+   var nodes = [{label: 'hi', type: 'expression', id:0},{label: 'bye', type: 'expression', id:1}];
+   var links = [{source: 0, target: 1, label: 'yo'}];
+   graph.addNodes(nodes);
+   graph.addLinks(links);
+   assert.equal($('.link text').length, 1);
+   assert.equal($('.link text').text(), 'yo');
+});
+
+QUnit.test('text labels on nodes', function(assert){
+   var node = {label: 'crow', type: 'bird', id:0};
+   graph.addNodes([node]);
+   assert.equal($('.node text').length, 1);
+   assert.equal($('.node text').text(), 'crow');
+   graph.clear();
 });
