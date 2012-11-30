@@ -17,14 +17,21 @@ inome.translator.toGraphForm = function(responseBody)
             var entry = {links:[], nodes:[]};
             var name = (profile.Name && profile.Name.FirstName) + ' ' + (profile.Name && profile.Name.LastName);
             var profileId = profile.ProfileID;
-            entry.nodes.push({name: name, id: profileId,type:'person', extra: profile});
+            entry.nodes.push({label: name, id: profileId,type:'person', extra: profile});
 
             if (profile.Relatives){
                for (j=0; j < profile.Relatives.count; j++){
                  var relative = profile.Relatives.Relative[j];
                  var relativeName = relative.Name.FirstName + ' ' + relative.Name.LastName;
-                 entry.nodes.push({'name':relativeName,'id':relative.ProfileID, type: 'person',extra: relative});
-                 entry.links.push({'source': profileId, 'target': relative.ProfileID, 'value': 1});
+                 var link = {source: profileId, target: relative.ProfileID};
+
+                 if (relative.Relationship !== 'relative' && relative.Relationship !== undefined)
+                 {
+                    link.label = relative.Relationship;
+                 }
+
+                 entry.nodes.push({label:relativeName,id:relative.ProfileID, type: 'person',extra: relative});
+                 entry.links.push(link);
                }
             }
 
@@ -35,9 +42,10 @@ inome.translator.toGraphForm = function(responseBody)
                   if (address.StreetAddress !== undefined)
                   {
                      var addressName = address.City || '' + (address.State ? (',' + address.State) : '');
-                     var addressString = [address.StreetAddress, address.City, address.State, address.Zip, address.Country].join('').replace(/\s/g,'').toUpperCase();
+                     var zip = address && address.Zip && address.Zip.split('-')[0];
+                     var addressString = [address.StreetAddress, address.City, address.State, zip, address.Country].join('').replace(/\s/g,'').toUpperCase();
                      var addressId = base64.encode(addressString);
-                     entry.nodes.push({'name':addressName,id:addressId,type: 'address',extra: address});
+                     entry.nodes.push({label:addressName,id:addressId,type: 'address',extra: address});
                      entry.links.push({'source':profileId,'target':addressId});
                   }
                }
@@ -56,7 +64,7 @@ inome.translator.toGraphForm = function(responseBody)
                      if (!ids[id])
                      {
                         ids[id] = 1;
-                        entry.nodes.push({name:position.CompanyName, id: id, type: 'professional', extra: position});
+                        entry.nodes.push({label:position.CompanyName, id: id, type: 'professional', extra: position});
                         entry.links.push({source: profileId, target: id});
                      }
                   }
@@ -77,7 +85,7 @@ inome.translator.toGraphForm = function(responseBody)
                      {
                         ids[id] = 1;
 
-                        entry.nodes.push({name: degree.School, id: id, type: 'education', extra: degree});
+                        entry.nodes.push({label: degree.School, id: id, type: 'education', extra: degree});
                         entry.links.push({source: profileId, target: id});
                      }
                   }
@@ -121,8 +129,14 @@ inome.translator.searchToGraphForm = function(responseBody)
                for (j=0; j < profile.relatives.count; j++){
                  var relative = profile.relatives.relative[j];
                  var relativeName = relative.name.firstName + ' ' + relative.name.lastName;
+                 var link = {'source': profileId, 'target': relative.profileId, 'value': 1};
+                 if (relative.Relationship === 'spouse')
+                 {
+                    link.label = 'spouse';
+                 }
+
                  entry.nodes.push({'name':relativeName,'id':relative.profileId, type: 'person',extra: relative});
-                 entry.links.push({'source': profileId, 'target': relative.profileId, 'value': 1});
+                 entry.links.push(link);
                }
             }
 
@@ -380,7 +394,7 @@ inome.translator.propertyToGraph = function(properties,id,callback)
                if (data.profiles && data.profiles.profile[0])
                {
                   var profile = data.profiles.profile[0];
-                  var node = {name: profile.name.firstName + profile.name.lastName,id: profile.profileId, type: 'neighbor'};
+                  var node = {label: profile.name.firstName + profile.name.lastName,id: profile.profileId, type: 'neighbor'};
                   callback({links: [{source: id, target: profile.profileId}], nodes: [node]});
                }
             });

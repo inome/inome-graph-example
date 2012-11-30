@@ -164,8 +164,6 @@ function graphLib(selector, conf)
    linksGroup = svg.append('g').attr('class','links');
    nodesGroup = svg.append('g').attr('class','nodes');
 
-   update();
-
    /**
     * @return nodes in the graph
     */
@@ -243,7 +241,7 @@ function graphLib(selector, conf)
    } // getLinks
 
    /**
-    * adds nodes in the minimum form {name: <label for the node>, id: <unique id for the node>}
+    * adds nodes in the minimum form {label: <label for the node>, id: <unique id for the node>}
     * nodes added with an id already in the pool will be ignored
     * @param nodes - nodes to add
     * @param near - optional parameter to place new nodes near a particular node
@@ -332,11 +330,11 @@ function graphLib(selector, conf)
 
    /**
     * removes a node and it's associated links from the graph
-    * given we have nodes of specs: {id: 12345, name: 'Nick Rushton', type: 'person'} and
-    *                               {id: 12346, name: 'Ken Doll', type:'person'}
+    * given we have nodes of specs: {id: 12345, label: 'Nick Rushton', type: 'person'} and
+    *                               {id: 12346, label: 'Ken Doll', type:'person'}
     * if we pass remove the selector: {id: 12345} the Nick Rushton node above will be removed
     * given we pass the selector: {type: 'person'} both nodes will be removed because they are type person
-    * finally given teh selector: {name: 'Ken Doll', type: 'person'} only the Ken Doll node will be removed
+    * finally given the selector: {label: 'Ken Doll', type: 'person'} only the Ken Doll node will be removed
     * @param selector - object of values to match against
     *                   e.g. {type: 'person'}
     */
@@ -526,11 +524,26 @@ function graphLib(selector, conf)
      var link = linksGroup.selectAll('g.link')
          .data(data.links);
 
-     link.enter()
+     var linkWrap = link.enter()
         .append('g')
-           .attr('class',function(d){return 'link ' + (d.target.type || '');})
-           .append('path')
-              .on('mouseover',config.mouseover);
+           .attr('class',function(d){return 'link ' + (d.target.type || '');});
+     linkWrap.append('path')
+        .on('mouseover',config.mouseover)
+        .attr('id', function(d){ return d.source.id + d.target.id; });
+
+     linkWrap.each(function(link){
+        if (link.label)
+        {
+           d3.select(this).append('text')
+              .append('textPath')
+                 .attr('xlink:href', function(d){ return '#' + d.source.id + d.target.id; })
+                 .attr('startOffset', '50%')
+                 .attr('baseline-shift', '-2px')
+                 .attr('text-anchor','middle')
+                 .text('spouse');
+        }
+              
+     });
 
      linksGroup.selectAll('g.link path')
         .attr('d',linkStyles[config.linkStyle]);
@@ -563,7 +576,7 @@ function graphLib(selector, conf)
             .attr('cy', function(d){ return d.y;});
 
      nodeEnter.append('text')
-            .text(function(d){ return d.name; });
+            .text(function(d){ return d.label; });
 
      node.exit().remove();
 
